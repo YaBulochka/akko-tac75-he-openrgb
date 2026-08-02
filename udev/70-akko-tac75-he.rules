@@ -1,0 +1,5 @@
+# Akko TAC75 HE — normal mode
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3151", ATTRS{idProduct}=="502d", TAG+="uaccess"
+
+# Akko/Rongyuan keyboard bootloader — firmware update mode
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3151", ATTRS{idProduct}=="502a", TAG+="uaccess"

@@ -1,0 +1,13 @@
+# Locally generated firmware images
+TAC75_HE_2782_v502_T75D_SAFE_GATE.bin
+TAC75_HE_2782_v502_stock.bin
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Temporary files
+*.tmp
+*.swp
+*~

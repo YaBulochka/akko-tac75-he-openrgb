@@ -1,0 +1,27 @@
+Akko TAC75 HE OpenRGB Support — Licensing Notice
+
+This repository contains components under different free software licenses.
+
+GPL-3.0-only:
+- build-firmware.sh
+- patcher/
+- udev/
+- tools/iot_driver
+- sources/iot_driver-0.1.0-modified-source.tar.zst
+- sources/TAC75HE-T75D-hook-source.tar.zst
+
+The full GPL-3.0 license text is available at:
+licenses/iot_driver-GPL-3.0.txt
+
+GPL-2.0-only:
+- plugin/libOpenRGBTAC75HEPlugin.so
+- sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst
+
+The full GPL-2.0 license text is available at:
+licenses/openrgb-plugin-GPL-2.0.txt
+
+The original Akko/Rongyuan firmware is not included in this repository.
+It is downloaded directly from the vendor firmware service by the user and is
+not covered by the licenses applied to this project's original code.
+
+Third-party components and dependencies retain their respective licenses.

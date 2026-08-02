@@ -49,39 +49,6 @@ The prebuilt release requires:
 
 Rust, an ARM compiler and the complete development repository are not required.
 
-## Release contents
-
-```text
-build-firmware.sh
-
-patcher/
-├── build_only.py
-├── hook.bin
-├── hook_framework.py
-└── hooks.py
-
-plugin/
-└── libOpenRGBTAC75HEPlugin.so
-
-tools/
-└── iot_driver
-
-udev/
-└── 70-akko-tac75-he.rules
-
-licenses/
-├── iot_driver-GPL-3.0.txt
-└── openrgb-plugin-GPL-2.0.txt
-
-sources/
-├── iot_driver-0.1.0-modified-source.tar.zst
-├── OpenRGB-TAC75HE-Plugin-modified-source.tar.zst
-└── TAC75HE-T75D-hook-source.tar.zst
-
-README.md
-SHA256SUMS
-```
-
 ## Known limitations
 
 - OpenRGB must be completely closed before using the Akko Web Driver.

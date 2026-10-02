@@ -16,7 +16,7 @@ class OpenRGBTAC75HEPlugin final
     , public OpenRGBPluginInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID OpenRGBPluginInterface_IID FILE "OpenRGBTAC75HEPlugin.json")
+    Q_PLUGIN_METADATA(IID "org.openrgb.OpenRGBPluginInterface" FILE "OpenRGBTAC75HEPlugin.json")
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:

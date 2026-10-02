@@ -41,10 +41,7 @@ jobs:
         shell: bash
         run: |
           cd plugin/src/windows
-          # moc looks relative to the header file location and/or current dir
           cp -f OpenRGBTAC75HEPlugin.json ../common/
-          cp -f OpenRGBTAC75HEPlugin.json .
-          # also put a copy in the build dir later
           ls -la *.json ../common/*.json
 
       - name: Build plugin
@@ -63,9 +60,7 @@ jobs:
         run: |
           mkdir -p dist
           find plugin -name "OpenRGBTAC75HEPlugin.dll" -exec cp -v {} dist/ \;
-          # hidapi
           find plugin/src/windows/OpenRGB/dependencies/hidapi-win -name "hidapi.dll" -exec cp -v {} dist/ \; || true
-          # also from DESTDIR
           cp -v plugin/bin/windows/* dist/ 2>/dev/null || true
           ls -la dist/
           echo "=== strings check ==="

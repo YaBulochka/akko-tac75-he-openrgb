@@ -35,6 +35,16 @@ jobs:
           cd plugin/src/windows
           git clone --depth 1 --branch release_1.0 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
           echo "OpenRGB commit: $(git -C OpenRGB rev-parse --short HEAD)"
+          echo "Plugin API version:"
+          grep -E "OPENRGB_PLUGIN_API_VERSION" OpenRGB/OpenRGBPluginInterface.h || true
+
+      - name: Prepare JSON for moc
+        shell: bash
+        run: |
+          cd plugin/src/windows
+          # Ensure JSON is next to sources so moc finds it
+          cp -f OpenRGBTAC75HEPlugin.json ../common/OpenRGBTAC75HEPlugin.json || true
+          ls -la *.json ../common/*.json
 
       - name: Build plugin
         shell: cmd
@@ -46,6 +56,22 @@ jobs:
           qmake ..\OpenRGBTAC75HEPlugin.pro CONFIG+=release
           nmake
 
+      - name: Verify DLL and metadata
+        shell: bash
+        run: |
+          echo "Looking for DLL..."
+          find plugin -name "*.dll" -type f
+          echo "---"
+          # Try to show if strings contain the API version
+          dll=$(find plugin -name "OpenRGBTAC75HEPlugin.dll" | head -1)
+          if [ -n "$dll" ]; then
+            echo "Found: $dll"
+            strings "$dll" | grep -E "OpenRGBPluginAPIVersion|org.openrgb.tac75heplugin|Akko TAC75" || true
+          else
+            echo "DLL not found!"
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,4 +79,5 @@ jobs:
           path: |
             plugin/bin/windows/*.dll
             plugin/src/windows/build/*.dll
-          if-no-files-found: warn
+            plugin/src/windows/build/release/*.dll
+          if-no-files-found: error

@@ -16,14 +16,18 @@ SOURCES += \
     ../common/RGBController_TAC75HE.cpp \
     ../common/TAC75HEHID.cpp
 
-OTHER_FILES += \
-    ../common/OpenRGBTAC75HEPlugin.json
+# JSON must be findable by moc relative to the header / build dir
+DISTFILES += OpenRGBTAC75HEPlugin.json
+OTHER_FILES += OpenRGBTAC75HEPlugin.json
 
 INCLUDEPATH += \
     ../common \
     OpenRGB \
     OpenRGB/RGBController \
-    OpenRGB/dependencies/json
+    OpenRGB/dependencies/json \
+    $$
+
+DEPENDPATH += ../common
 
 win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS WIN32

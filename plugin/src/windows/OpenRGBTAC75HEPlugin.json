@@ -1,0 +1,11 @@
+{
+    "Id": "org.openrgb.tac75heplugin",
+    "Name": "Akko TAC75 HE",
+    "VendorId": "echtzeit-solutions",
+    "Version": "1.0.0",
+    "VersionStr": "1.0.0",
+    "Url": "https://github.com/YaBulochka/akko-tac75-he-openrgb",
+    "Commit": "OpenRGB Plugin API 5 / virtual controller",
+    "Description": "Direct Mode support for the Akko TAC75 HE",
+    "OpenRGBPluginAPIVersion": 5
+}

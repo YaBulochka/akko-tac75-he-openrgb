@@ -35,9 +35,9 @@ jobs:
           cd plugin/src/windows
           git clone --depth 1 --branch release_1.0 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
           echo "OpenRGB commit: $(git -C OpenRGB rev-parse --short HEAD)"
-          ls -la OpenRGB/dependencies/hidapi-win/x64/ || ls -la OpenRGB/dependencies/ || true
+          ls -la OpenRGB/dependencies/hidapi-win/x64/ || true
 
-      - name: Place JSON where moc can find it
+      - name: Place JSON for moc
         shell: bash
         run: |
           cd plugin/src/windows
@@ -55,16 +55,19 @@ jobs:
           qmake ..\OpenRGBTAC75HEPlugin.pro CONFIG+=release
           nmake
 
-      - name: Collect artifacts
-        shell: bash
+      - name: Collect + inspect dependencies
+        shell: cmd
         run: |
-          mkdir -p dist
-          find plugin -name "OpenRGBTAC75HEPlugin.dll" -exec cp -v {} dist/ \;
-          find plugin/src/windows/OpenRGB/dependencies/hidapi-win -name "hidapi.dll" -exec cp -v {} dist/ \; || true
-          cp -v plugin/bin/windows/* dist/ 2>/dev/null || true
-          ls -la dist/
-          echo "=== strings check ==="
-          strings dist/OpenRGBTAC75HEPlugin.dll | grep -E "OpenRGBPluginAPIVersion|org.openrgb.tac75heplugin|MetaData|Akko TAC75" || echo "WARNING: metadata strings not found"
+          mkdir dist
+          for /r plugin %%f in (OpenRGBTAC75HEPlugin.dll) do copy /Y "%%f" dist\
+          for /r plugin\src\windows\OpenRGB\dependencies\hidapi-win %%f in (hidapi.dll) do copy /Y "%%f" dist\
+          dir dist
+          echo.
+          echo === DEPENDENTS ===
+          dumpbin /dependents dist\OpenRGBTAC75HEPlugin.dll
+          echo.
+          echo === METADATA STRINGS ===
+          findstr /I /C:"OpenRGBPluginAPIVersion" /C:"org.openrgb.tac75heplugin" /C:"Akko TAC75" dist\OpenRGBTAC75HEPlugin.dll || echo metadata strings not found
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -16,7 +16,6 @@ SOURCES += \
     ../common/RGBController_TAC75HE.cpp \
     ../common/TAC75HEHID.cpp
 
-# JSON must be findable by moc relative to the header / build dir
 DISTFILES += OpenRGBTAC75HEPlugin.json
 OTHER_FILES += OpenRGBTAC75HEPlugin.json
 
@@ -24,8 +23,7 @@ INCLUDEPATH += \
     ../common \
     OpenRGB \
     OpenRGB/RGBController \
-    OpenRGB/dependencies/json \
-    $$
+    OpenRGB/dependencies/json
 
 DEPENDPATH += ../common
 

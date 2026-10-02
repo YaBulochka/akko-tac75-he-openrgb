@@ -29,11 +29,12 @@ jobs:
         with:
           arch: x64
 
-      - name: Clone OpenRGB
+      - name: Clone OpenRGB release_1.0
         shell: bash
         run: |
           cd plugin/src/windows
-          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
+          git clone --depth 1 --branch release_1.0 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
+          echo "OpenRGB commit: $(git -C OpenRGB rev-parse --short HEAD)"
 
       - name: Build plugin
         shell: cmd

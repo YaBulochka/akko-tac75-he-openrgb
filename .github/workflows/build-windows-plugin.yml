@@ -1,0 +1,55 @@
+name: Build Windows Plugin
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'plugin/**'
+      - '.github/workflows/build-windows-plugin.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          cache: true
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Clone OpenRGB
+        shell: bash
+        run: |
+          cd plugin/src/windows
+          git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
+
+      - name: Build plugin
+        shell: cmd
+        run: |
+          cd plugin\src\windows
+          if exist build rmdir /s /q build
+          mkdir build
+          cd build
+          qmake ..\OpenRGBTAC75HEPlugin.pro CONFIG+=release
+          nmake
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRGBTAC75HEPlugin-windows
+          path: |
+            plugin/bin/windows/*.dll
+            plugin/src/windows/build/*.dll
+          if-no-files-found: warn

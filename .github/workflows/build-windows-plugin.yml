@@ -57,21 +57,18 @@ jobs:
         shell: cmd
         run: |
           mkdir dist
-          for /r plugin %%f in (OpenRGBTAC75HEPlugin.dll) do (
-            echo Found: %%f
-            copy /Y "%%f" dist\
-          )
+          for /r plugin %%f in (OpenRGBTAC75HEPlugin.dll) do copy /Y "%%f" dist\
           for /r plugin\src\windows\OpenRGB\dependencies\hidapi-win %%f in (hidapi.dll) do copy /Y "%%f" dist\
           dir dist
           echo.
-          echo === FILE TYPE / HEADERS ===
-          dumpbin /headers dist\OpenRGBTAC75HEPlugin.dll | findstr /I "machine abstract"
+          echo === HEADERS ===
+          dumpbin /headers dist\OpenRGBTAC75HEPlugin.dll | findstr /I "machine"
           echo.
           echo === DEPENDENTS ===
           dumpbin /dependents dist\OpenRGBTAC75HEPlugin.dll
           echo.
-          echo === METADATA ===
-          findstr /I /C:"OpenRGBPluginAPIVersion" /C:"org.openrgb.tac75heplugin" /C:"Akko TAC75" dist\OpenRGBTAC75HEPlugin.dll || echo metadata strings not found
+          echo === DELAYLOAD ===
+          dumpbin /delayload dist\OpenRGBTAC75HEPlugin.dll
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -14,7 +14,6 @@ SOURCES += \
     ../common/RGBController_TAC75HE.cpp \
     ../common/TAC75HEHID.cpp
 
-# JSON for Q_PLUGIN_METADATA - must be visible to moc
 DISTFILES += OpenRGBTAC75HEPlugin.json
 
 INCLUDEPATH += \
@@ -37,10 +36,10 @@ win32 {
         HIDAPI_DLL = $$PWD/OpenRGB/dependencies/hidapi-win/x86/hidapi.dll
     }
 
-    LIBS += -lws2_32 -lole32
+    LIBS += -lws2_32 -lole32 -ldelayimp
+    QMAKE_LFLAGS += /DELAYLOAD:hidapi.dll
 
     DESTDIR = $$PWD/../../bin/windows
 
-    # Copy hidapi.dll next to the plugin
     QMAKE_POST_LINK += $$quote(cmd /c copy /Y $$shell_path($$HIDAPI_DLL) $$shell_path($$DESTDIR) $$escape_expand(\n\t))
 }

@@ -25,9 +25,9 @@ OpenRGBPluginInfo OpenRGBTAC75HEPlugin::GetPluginInfo()
 
     info.Name        = "Akko TAC75 HE";
     info.Description = "Direct Mode support for the Akko TAC75 HE";
-    info.Version     = "1.0.0";
+    info.Version     = "1.1.0";
     info.Commit      = "OpenRGB Plugin API 5 / virtual controller";
-    info.URL         = "https://github.com/echtzeit-solutions/monsgeek-akko-linux";
+    info.URL         = "https://github.com/YaBulochka/akko-tac75-he-openrgb";
 
     info.Location      = OPENRGB_PLUGIN_LOCATION_TOP;
     info.Label         = "TAC75 HE";

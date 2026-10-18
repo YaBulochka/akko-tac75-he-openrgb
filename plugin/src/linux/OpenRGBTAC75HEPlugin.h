@@ -1,0 +1,1 @@
+../common/OpenRGBTAC75HEPlugin.h

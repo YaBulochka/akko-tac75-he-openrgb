@@ -5,7 +5,7 @@ Unofficial and experimental OpenRGB Direct Mode support for the **Akko TAC75 HE*
 This release contains:
 
 - a POSIX shell script that downloads the official stock firmware and applies the T75D patch locally;
-- an OpenRGB plugin;
+- a Linux OpenRGB plugin;
 - a reverse-engineered firmware download and flashing utility;
 - the corresponding modified source archives and license texts.
 
@@ -33,7 +33,12 @@ This release supports only:
 
 Do not flash the generated firmware on another Akko or MonsGeek keyboard, even if it looks identical.
 
-Windows is currently untested and unsupported.
+### Windows
+
+Windows support is experimental and untested. This repository does not ship a
+prebuilt Windows DLL. The `Build Windows Plugin` GitHub Actions workflow can
+produce an x86_64 DLL from the current source, but the firmware build and
+flashing steps in this README are Linux-only.
 
 ## Requirements
 
@@ -58,7 +63,6 @@ Rust, an ARM compiler and the complete development repository are not required.
   Direct Mode until it is disconnected and reconnected.
 - The prebuilt plugin is built for OpenRGB 1.1 on Arch Linux with Qt 6.12
   (x86_64). A plugin built against a different Qt major version will not load.
-- Windows has not been tested.
 - Only device ID `2782` with original firmware version `5.02` is supported.
 
 Hall Effect settings are stored onboard and do not depend on OpenRGB. The normal

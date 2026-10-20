@@ -2,16 +2,31 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "$0")" && pwd)"
-cd "$ROOT"
+TAG="${1:-release_1.1}"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
 
-if [[ ! -d OpenRGB/.git ]]; then
-    echo "==> Cloning fresh OpenRGB master..."
-    git clone --depth 1 https://github.com/CalcProgrammer1/OpenRGB.git OpenRGB
-else
-    echo "==> Updating OpenRGB..."
-    git -C OpenRGB fetch --depth 1 origin master
-    git -C OpenRGB reset --hard origin/master
-fi
+echo "==> Fetching OpenRGB $TAG plugin headers..."
 
-echo "==> OpenRGB commit: $(git -C OpenRGB rev-parse --short HEAD)"
-echo "==> Plugin API: $(grep -E '^#define OPENRGB_PLUGIN_API_VERSION' OpenRGB/OpenRGBPluginInterface.h || true)"
+git clone --quiet --depth 1 --branch "$TAG" \
+    https://github.com/CalcProgrammer1/OpenRGB.git \
+    "$TMP/OpenRGB"
+
+install -Dm644 \
+    "$TMP/OpenRGB/OpenRGBPluginInterface.h" \
+    "$ROOT/OpenRGB/OpenRGBPluginInterface.h"
+
+install -Dm644 \
+    "$TMP/OpenRGB/RGBController/RGBControllerInterface.h" \
+    "$ROOT/OpenRGB/RGBController/RGBControllerInterface.h"
+
+install -Dm644 \
+    "$TMP/OpenRGB/filesystem.h" \
+    "$ROOT/OpenRGB/filesystem.h"
+
+install -Dm644 \
+    "$TMP/OpenRGB/dependencies/json/nlohmann/json.hpp" \
+    "$ROOT/OpenRGB/dependencies/json/nlohmann/json.hpp"
+
+echo "==> Plugin API: $(grep -E '^#define OPENRGB_PLUGIN_API_VERSION' "$ROOT/OpenRGB/OpenRGBPluginInterface.h")"
+echo "==> Headers synced from $TAG"

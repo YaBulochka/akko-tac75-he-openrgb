@@ -54,7 +54,10 @@ Rust, an ARM compiler and the complete development repository are not required.
 - OpenRGB must be completely closed before using the Akko Web Driver.
 - Do not use OpenRGB and the Akko Web Driver at the same time.
 - The Caps Lock LED indicator does not work while OpenRGB Direct Mode is active.
-- The prebuilt plugin may not be compatible with every OpenRGB or Qt build.
+- If OpenRGB is killed while Direct Mode is active, the keyboard may stay in
+  Direct Mode until it is disconnected and reconnected.
+- The prebuilt plugin is built for OpenRGB 1.1 on Arch Linux with Qt 6.12
+  (x86_64). A plugin built against a different Qt major version will not load.
 - Windows has not been tested.
 - Only device ID `2782` with original firmware version `5.02` is supported.
 
@@ -233,13 +236,45 @@ Install the plugin into the user OpenRGB plugin directory:
 
 ```bash
 install -Dm755 \
-  plugin/libOpenRGBTAC75HEPlugin.so \
+  plugin/bin/linux/libOpenRGBTAC75HEPlugin.so \
   ~/.config/OpenRGB/plugins/libOpenRGBTAC75HEPlugin.so
 ```
 
 Start OpenRGB normally.
 
 The Akko TAC75 HE should appear as an RGB device.
+
+## Building the plugin from source
+
+The included binary is built for OpenRGB 1.1 on Arch Linux with Qt 6.12
+(x86_64). OpenRGB loads plugins only when the Qt major version matches, so
+rebuild the plugin if your OpenRGB uses a different Qt version.
+
+Requirements:
+
+- `qmake6` (Qt 6 Core, Gui and Widgets development packages);
+- `hidapi` with the `hidapi-hidraw` pkg-config module;
+- `g++`, `make` and `pkg-config`.
+
+Build:
+
+```bash
+cd plugin/src/linux
+./build.sh
+```
+
+The script writes the result to
+`plugin/bin/linux/libOpenRGBTAC75HEPlugin.so` and prefers the Qt major version
+used by the `openrgb` binary in `PATH`.
+
+The vendored OpenRGB plugin headers can be refreshed from an upstream tag:
+
+```bash
+cd plugin/src/linux
+./setup-openrgb.sh release_1.1
+```
+
+This is only needed when moving to a new OpenRGB plugin API.
 
 ## Normal usage
 
@@ -348,7 +383,7 @@ patcher/hook.bin
 
 The following components are distributed under **GPL-2.0-only**:
 
-- `plugin/libOpenRGBTAC75HEPlugin.so`;
+- `plugin/bin/linux/libOpenRGBTAC75HEPlugin.so`;
 - `sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst`.
 
 The complete GPL-2.0 license text is included at:
@@ -358,6 +393,13 @@ licenses/openrgb-plugin-GPL-2.0.txt
 ```
 
 The OpenRGB plugin source archive corresponds to the prebuilt plugin included in this release.
+
+Release maintainers can rebuild the plugin source archive and the checksum list with:
+
+```bash
+./scripts/build-plugin-source-archive.sh
+./scripts/update-checksums.sh
+```
 
 The original Akko/Rongyuan firmware is not included in this repository or in the release archives. It is downloaded directly from the vendor firmware service by the user and is not covered by the licenses applied to this project's original code.
 

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <cstdio>
 #include <cstring>
+#include <thread>
 #include <utility>
 #include <vector>
 

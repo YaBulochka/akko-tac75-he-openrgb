@@ -18,7 +18,6 @@ public:
     RGBController_Setup BuildSetup();
     void AttachController(RGBControllerInterface* controller_ptr);
     RGBControllerInterface* GetController() const;
-    void SetRegistered(bool registered);
 
     static void DeviceConfigureZone(void* object, int zone);
     static void DeviceUpdateLEDs(void* object);
@@ -31,6 +30,5 @@ private:
 
     std::unique_ptr<TAC75HEHID> hid;
     RGBControllerInterface* controller = nullptr;
-    bool registered = false;
     bool io_error_reported = false;
 };

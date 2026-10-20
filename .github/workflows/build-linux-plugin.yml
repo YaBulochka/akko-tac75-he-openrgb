@@ -1,0 +1,66 @@
+name: Build Linux Plugin
+
+on:
+  push:
+    paths:
+      - 'plugin/**'
+      - 'sources/**'
+      - 'SHA256SUMS'
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/workflows/build-linux-plugin.yml'
+  pull_request:
+    paths:
+      - 'plugin/**'
+      - 'sources/**'
+      - 'SHA256SUMS'
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/workflows/build-linux-plugin.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            qt6-base-dev \
+            libhidapi-dev
+
+      - name: Check version consistency
+        run: |
+          version="$(python3 -c 'import json; print(json.load(open("plugin/src/common/OpenRGBTAC75HEPlugin.json"))["Version"])')"
+          grep -Eq "info\\.Version[[:space:]]*=[[:space:]]*\"$version\"" plugin/src/common/OpenRGBTAC75HEPlugin.cpp
+          grep -q "\"Version\": \"$version\"" plugin/src/windows/OpenRGBTAC75HEPlugin.json
+          grep -q "\"VersionStr\": \"$version\"" plugin/src/windows/OpenRGBTAC75HEPlugin.json
+
+      - name: Verify release checksums
+        run: sha256sum -c SHA256SUMS
+
+      - name: Build plugin
+        run: |
+          export PATH="/usr/lib/qt6/bin:$PATH"
+          ./plugin/src/linux/build.sh
+
+      - name: Verify plugin metadata
+        run: |
+          strings plugin/bin/linux/libOpenRGBTAC75HEPlugin.so | grep -q 'OpenRGBPluginAPIVersion'
+          strings plugin/bin/linux/libOpenRGBTAC75HEPlugin.so | grep -q '1.1.1'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libOpenRGBTAC75HEPlugin-linux-x86_64
+          path: plugin/bin/linux/libOpenRGBTAC75HEPlugin.so
+          if-no-files-found: error

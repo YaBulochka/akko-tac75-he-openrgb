@@ -14,10 +14,11 @@ constexpr unsigned int NA              = 0xFFFFFFFFu;
 constexpr unsigned int TAC75_LED_COUNT = 83;
 
 /*
- * OpenRGB visual layout: 6 rows x 19 columns.
+ * OpenRGB visual layout: 6 rows x 16 columns.
  *
- * The firmware transport still uses its own internal 6x16 layout.
- * This wider map exists only to make LED View resemble the real keyboard.
+ * The firmware transport uses the same 6x16 grid, but in a different
+ * order.  This map exists only to make LED View resemble the real
+ * keyboard.
  */
 unsigned int tac75_matrix_map[6][16] =
 {
@@ -215,7 +216,14 @@ RGBController_Setup RGBController_TAC75HE::BuildSetup()
     setup.vendor      = "Akko";
     setup.description = "TAC75 HE Direct Mode plugin";
     setup.version     = "TAC75DM v" + std::to_string(hid->PatchInfo().version);
-    setup.location    = hid->Path();
+
+    /*
+     * OpenRGB matches devices by location when loading profiles.  Hidraw
+     * numbers are not stable across replugs, so prefix the path with "HID: ":
+     * CompareControllers() ignores locations with that prefix.
+     */
+    setup.location    = "HID: " + hid->Path();
+
     setup.type        = DEVICE_TYPE_KEYBOARD;
     setup.flags       = CONTROLLER_FLAG_VIRTUAL;
     setup.active_mode = 0;
@@ -255,11 +263,11 @@ RGBController_Setup RGBController_TAC75HE::BuildSetup()
 
     setup.DeviceConfigureZone       = &RGBController_TAC75HE::DeviceConfigureZone;
     setup.DeviceUpdateLEDs          = &RGBController_TAC75HE::DeviceUpdateLEDs;
-    setup.DeviceUpdateZoneLEDs     = &RGBController_TAC75HE::DeviceUpdateZoneLEDs;
-    setup.DeviceUpdateSingleLED    = &RGBController_TAC75HE::DeviceUpdateSingleLED;
-    setup.DeviceUpdateMode         = &RGBController_TAC75HE::DeviceUpdateMode;
-    setup.DeviceSaveMode           = nullptr;
-    setup.DeviceUpdateZoneMode     = nullptr;
+    setup.DeviceUpdateZoneLEDs      = &RGBController_TAC75HE::DeviceUpdateZoneLEDs;
+    setup.DeviceUpdateSingleLED     = &RGBController_TAC75HE::DeviceUpdateSingleLED;
+    setup.DeviceUpdateMode          = &RGBController_TAC75HE::DeviceUpdateMode;
+    setup.DeviceSaveMode            = nullptr;
+    setup.DeviceUpdateZoneMode      = nullptr;
     setup.DeviceUpdateDeviceSpecificConfiguration = nullptr;
     setup.DeviceUpdateDeviceSpecificZoneConfiguration = nullptr;
 
@@ -276,11 +284,6 @@ void RGBController_TAC75HE::AttachController(
 RGBControllerInterface* RGBController_TAC75HE::GetController() const
 {
     return controller;
-}
-
-void RGBController_TAC75HE::SetRegistered(bool value)
-{
-    registered = value;
 }
 
 void RGBController_TAC75HE::DeviceConfigureZone(void*, int)

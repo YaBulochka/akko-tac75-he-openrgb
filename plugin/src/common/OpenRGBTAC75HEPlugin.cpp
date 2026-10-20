@@ -25,9 +25,16 @@ OpenRGBPluginInfo OpenRGBTAC75HEPlugin::GetPluginInfo()
 
     info.Name        = "Akko TAC75 HE";
     info.Description = "Direct Mode support for the Akko TAC75 HE";
-    info.Version     = "1.1.0";
+    info.Version     = "1.1.1";
     info.Commit      = "OpenRGB Plugin API 5 / virtual controller";
     info.URL         = "https://github.com/YaBulochka/akko-tac75-he-openrgb";
+
+    /*
+     * OpenRGBPluginInfo has no constructor.  OpenRGB reads this field when
+     * serving the plugin list over the SDK, so leaving it uninitialized sends
+     * a random value to clients.
+     */
+    info.ProtocolVersion = 0;
 
     info.Location      = OPENRGB_PLUGIN_LOCATION_TOP;
     info.Label         = "TAC75 HE";
@@ -105,7 +112,6 @@ void OpenRGBTAC75HEPlugin::Load(OpenRGBPluginAPIInterface* plugin_api_ptr)
     }
 
     controller->AttachController(rgb_controller);
-    controller->SetRegistered(true);
 
     plugin_api->RegisterVirtualRGBController(rgb_controller);
 }

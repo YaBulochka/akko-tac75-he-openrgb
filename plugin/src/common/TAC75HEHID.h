@@ -3,12 +3,10 @@
 #include <hidapi.h>
 
 #include <array>
-#include <condition_variable>
 #include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
-#include <thread>
 
 struct TAC75HEPatchInfo
 {

@@ -7,26 +7,31 @@ TARGET = OpenRGBTAC75HEPlugin
 PKGCONFIG += hidapi-hidraw
 
 HEADERS += \
-    OpenRGBTAC75HEPlugin.h \
-    RGBController_TAC75HE.h \
-    TAC75HEHID.h \
+    ../common/OpenRGBTAC75HEPlugin.h \
+    ../common/RGBController_TAC75HE.h \
+    ../common/TAC75HEHID.h \
     OpenRGB/OpenRGBPluginInterface.h \
     OpenRGB/RGBController/RGBControllerInterface.h
 
 SOURCES += \
-    OpenRGBTAC75HEPlugin.cpp \
-    RGBController_TAC75HE.cpp \
-    TAC75HEHID.cpp
+    ../common/OpenRGBTAC75HEPlugin.cpp \
+    ../common/RGBController_TAC75HE.cpp \
+    ../common/TAC75HEHID.cpp
 
 OTHER_FILES += \
-    OpenRGBTAC75HEPlugin.json
+    ../common/OpenRGBTAC75HEPlugin.json
 
 INCLUDEPATH += \
+    ../common \
     OpenRGB \
     OpenRGB/RGBController \
     OpenRGB/dependencies/json
 
 unix:!macx {
+    # Link straight into the release directory.  build.sh creates it.
+    DESTDIR = $$PWD/../../bin/linux
+
+    isEmpty(PREFIX): PREFIX = /usr
     target.path = $$PREFIX/lib/openrgb/plugins/
     INSTALLS += target
 }

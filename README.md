@@ -51,9 +51,6 @@ MonsGeek. TAC75 HE support is provided by this release.
 
 - OpenRGB must be completely closed before using the Akko Web Driver.
 - Do not run OpenRGB and the Akko Web Driver at the same time.
-- Caps, Scroll and WinLock indicator LEDs are copied from the stock frame
-  while Direct Mode is active. This behavior is new and has not been verified
-  on hardware yet.
 - If OpenRGB is killed while Direct Mode is active, the keyboard may stay in
   Direct Mode until it is disconnected and reconnected.
 - The plugin probes the keyboard only when it is loaded. If you connect the
@@ -277,7 +274,9 @@ The patched firmware adds a Direct Mode protocol with the payload signature
 `T75D`. Only signed T75D vendor packets are intercepted; unsigned stock commands
 are passed to the original firmware, so the Akko Web Driver still works while
 OpenRGB is closed. While Direct Mode is active, the stock lighting renderer
-cannot overwrite OpenRGB frames. Leaving Direct Mode restores stock lighting.
+cannot overwrite OpenRGB frames. The three stock indicator LEDs (Caps, Scroll
+and WinLock) are still copied from the stock frame, so they keep following the
+keyboard lock state. Leaving Direct Mode restores stock lighting.
 
 ## Licenses
 
@@ -296,7 +295,8 @@ This is an experimental alpha. It has been tested on one keyboard:
 
 - Akko TAC75 HE, USB `3151:502D`, device ID `2782`, firmware `5.02`;
 - Linux x86_64;
-- the included Linux OpenRGB plugin.
+- the included Linux OpenRGB plugin;
+- Caps, Scroll and WinLock indicator LEDs in Direct Mode.
 
 The Windows plugin is built by CI but has not been tested on Windows. No
 guarantees are made for other hardware revisions, firmware versions, operating

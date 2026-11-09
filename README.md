@@ -51,7 +51,9 @@ MonsGeek. TAC75 HE support is provided by this release.
 
 - OpenRGB must be completely closed before using the Akko Web Driver.
 - Do not run OpenRGB and the Akko Web Driver at the same time.
-- The Caps Lock LED indicator does not work while Direct Mode is active.
+- Caps, Scroll and WinLock indicator LEDs are copied from the stock frame
+  while Direct Mode is active. This behavior is new and has not been verified
+  on hardware yet.
 - If OpenRGB is killed while Direct Mode is active, the keyboard may stay in
   Direct Mode until it is disconnected and reconnected.
 - The plugin probes the keyboard only when it is loaded. If you connect the
@@ -113,7 +115,7 @@ chmod +x build-firmware.sh tools/flash-tac75he.sh tools/iot_driver
 The script downloads the official firmware for device ID `2782`, verifies the
 stock SHA256 `2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306`,
 applies the T75D SAFE-GATE patch and verifies the output SHA256
-`757c154ce58e656f68aca476daf68e76d1a7c4a40cc1d452b0b484ec4718e256`.
+`d067d58a24bb9dfcd5bf1f0c685aa8f320e5e64b880f865979a38d781d0e9b8e`.
 
 The default output is created in the current directory:
 

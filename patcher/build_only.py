@@ -14,8 +14,8 @@ HERE = Path(__file__).resolve().parent
 HOOK_BIN = HERE / "hook.bin"
 
 EXPECTED_HOOK_SHA256 = (
-    "d7f71af9a87c09a7d634c4212584030a"
-    "16f588e7a59203f34706b791ec518a98"
+    "bf0efbb52170f9cfbd23e40bbde5d5cc"
+    "ac51cbea40cb59c4d7d2d1339c9de7c0"
 )
 
 SYMBOLS = {
@@ -23,7 +23,7 @@ SYMBOLS = {
     "handle_vendor_cmd": 0x08025820,
     "boot_init_trampoline": 0x0802596E,
     "frame_copy_gate": 0x08025980,
-    "tac75_matrix_to_strip": 0x080259C0,
+    "tac75_matrix_to_strip": 0x080259CC,
 }
 
 DEFAULT_OUTPUT = (

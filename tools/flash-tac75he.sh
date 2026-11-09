@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
 DRIVER="${ROOT}/tools/iot_driver"
 
-PATCHED_SHA='757c154ce58e656f68aca476daf68e76d1a7c4a40cc1d452b0b484ec4718e256'
+PATCHED_SHA='d067d58a24bb9dfcd5bf1f0c685aa8f320e5e64b880f865979a38d781d0e9b8e'
 STOCK_SHA='2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306'
 
 mode='patched'

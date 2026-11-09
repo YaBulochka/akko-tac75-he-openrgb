@@ -41,6 +41,23 @@ def extract_table(source: str, declaration: str) -> list[int]:
     return values
 
 
+def extract_byte_table(source: str, declaration: str, count: int) -> list[int]:
+    start = source.find(declaration)
+    if start < 0:
+        raise AssertionError(f"table not found: {declaration}")
+
+    values = [
+        int(value, 16) for value in re.findall(r"0x([0-9A-Fa-f]{2})", source[start:])
+    ]
+
+    if len(values) < count:
+        raise AssertionError(
+            f"table {declaration} has {len(values)} bytes, expected {count}"
+        )
+
+    return values[:count]
+
+
 class ThumbEncodingTests(unittest.TestCase):
     def test_encode_bw_vendor_dispatch(self) -> None:
         self.assertEqual(
@@ -108,20 +125,12 @@ class LedMapTests(unittest.TestCase):
             self.plugin_source,
             "tac75_transport_map[96]",
         )
-
-        match = re.search(
-            r"EXPECTED_MATRIX_TO_STRIP\s*=\s*bytes\(\[(.*?)\]\)",
+        firmware_values = extract_byte_table(
             self.build_source,
-            re.S,
+            "EXPECTED_MATRIX_TO_STRIP",
+            96,
         )
-        self.assertIsNotNone(match)
 
-        firmware_values = [
-            int(value, 16)
-            for value in re.findall(r"0x([0-9A-Fa-f]{2})", match.group(1))
-        ]
-
-        self.assertEqual(len(firmware_values), 96)
         self.assertEqual(plugin_values, firmware_values)
 
 

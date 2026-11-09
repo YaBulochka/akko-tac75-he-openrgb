@@ -9,9 +9,9 @@ d7f71af9a87c09a7d634c4212584030a16f588e7a59203f34706b791ec518a98  ./patcher/hook
 842101185494e7d9942eecff5a2943c139580a52086894441ea9b7dec420102d  ./patcher/hook_framework.py
 aa4fec9c2812e9bd5504475a371ee5bed00a04ca4466c385013bc83b202ae465  ./patcher/hooks.py
 f46527a13a8e2ab6bd3934ff23ee0ee5fc013812faa556f060e274cad45cd352  ./plugin/bin/linux/libOpenRGBTAC75HEPlugin.so
-6a9d9bbb257b3bde1f1c9e9bda56906446573928d81382247b314b54b3db6ef0  ./README.md
+c4347b2300635802a70f356d8fdcc5d0757c965faa552f92e002fb4aff723d9f  ./README.md
 f3c37a39cf66010ea9400c240b596e4d392e782f8a02bca001119acd3960fc0a  ./sources/iot_driver-0.1.0-modified-source.tar.zst
-ef599244d9203a7e3311010b640cb777a98d31d0c424f38812586012027e4c7c  ./sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst
+7749674eb9f1d71dcbbbf9bf7b0db57b197982b6e7b66fe993a9c2d4ecc49cfe  ./sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst
 df59377a06a835fc07dd3413913beb7b7b78390960fb5c3aa8e01efab1704967  ./sources/TAC75HE-T75D-hook-source.tar.zst
 044b757f15b618b9161381800b909a24a5c418351f937a61845cccd675ff2904  ./tools/flash-tac75he.sh
 0f16cd4206c7a78bda48faf8fda3c9bca1df42e442a8ded09abf4c4fbbe3ac7d  ./tools/iot_driver

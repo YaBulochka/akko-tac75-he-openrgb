@@ -179,11 +179,16 @@ matching the official OpenRGB 1.1 Windows build. The artifact contains
 
 To install the artifact:
 
-1. Copy `OpenRGBTAC75HEPlugin.dll` to `%APPDATA%\OpenRGB\plugins\`.
-2. Make sure `hidapi-hotplug.dll` is next to `OpenRGB.exe`. OpenRGB 1.1 already
+1. Open the latest successful `Build Windows Plugin` run under **Actions** and
+   download the `OpenRGBTAC75HEPlugin-windows-x86_64-qt6.8.3` artifact.
+2. Copy `OpenRGBTAC75HEPlugin.dll` to `%APPDATA%\OpenRGB\plugins\`.
+3. Make sure `hidapi-hotplug.dll` is next to `OpenRGB.exe`. OpenRGB 1.1 already
    ships it; if it is missing, copy the DLL from the artifact into the OpenRGB
    program directory.
-3. Start OpenRGB.
+4. Start OpenRGB.
+
+The plugin uses the MSVC 2022 runtime. Install the Microsoft Visual C++
+2015-2022 Redistributable (x64) if Windows reports a missing runtime DLL.
 
 The firmware build and flashing steps in this README are Linux-only.
 

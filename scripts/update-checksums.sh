@@ -6,6 +6,7 @@ cd "$ROOT"
 
 sha256sum \
     ./build-firmware.sh \
+    ./.gitattributes \
     ./.gitignore \
     ./LICENSE \
     ./licenses/iot_driver-GPL-3.0.txt \
@@ -19,6 +20,7 @@ sha256sum \
     ./sources/iot_driver-0.1.0-modified-source.tar.zst \
     ./sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst \
     ./sources/TAC75HE-T75D-hook-source.tar.zst \
+    ./tools/flash-tac75he.sh \
     ./tools/iot_driver \
     ./udev/70-akko-tac75-he.rules \
     > SHA256SUMS

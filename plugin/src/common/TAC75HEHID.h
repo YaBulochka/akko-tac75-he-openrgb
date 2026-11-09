@@ -79,5 +79,11 @@ private:
     TAC75HEPatchInfo patch;
 
     mutable std::mutex io_mutex;
+
+    /*
+     * True while the firmware may still be in Direct Mode. It is cleared only
+     * after a successful release packet, so a failed frame update cannot skip
+     * the release on unload.
+     */
     bool stream_active = false;
 };

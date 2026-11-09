@@ -179,7 +179,13 @@ hid_device* TAC75HEHID::OpenCompatibleDevice(
             continue;
         }
 
-        if(current->interface_number != TAC75_FEATURE_INTERFACE)
+        /*
+         * Linux reports interface 2. Some Windows hidapi builds report -1 for
+         * composite devices, so accept that and rely on the vendor usage page
+         * and usage to identify the feature interface.
+         */
+        if(current->interface_number >= 0
+        && current->interface_number != TAC75_FEATURE_INTERFACE)
         {
             continue;
         }
@@ -344,7 +350,10 @@ bool TAC75HEHID::SendFrame(
 
     if(opened == nullptr)
     {
-        stream_active = false;
+        /*
+         * Do not clear stream_active here. A previous frame may have activated
+         * Direct Mode, and the release must still be attempted on unload.
+         */
         return false;
     }
 
@@ -364,7 +373,10 @@ bool TAC75HEHID::SendFrame(
 
     if(!sent)
     {
-        stream_active = false;
+        /*
+         * The firmware may already be in Direct Mode from an earlier frame.
+         * Keep the state so Release() still sends the release packet.
+         */
         return false;
     }
 
@@ -387,7 +399,10 @@ bool TAC75HEHID::Release(std::string& error)
 
     if(opened == nullptr)
     {
-        stream_active = false;
+        /*
+         * Keep stream_active set: the keyboard may still be in Direct Mode.
+         * A later release attempt can retry if the device becomes available.
+         */
         return false;
     }
 
@@ -395,7 +410,11 @@ bool TAC75HEHID::Release(std::string& error)
         SendReleasePacket(opened, error);
 
     hid_close(opened);
-    stream_active = false;
+
+    if(released)
+    {
+        stream_active = false;
+    }
 
     return released;
 }

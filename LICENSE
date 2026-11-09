@@ -5,7 +5,10 @@ This repository contains components under different free software licenses.
 GPL-3.0-only:
 - build-firmware.sh
 - patcher/
+- scripts/
+- tests/
 - udev/
+- tools/flash-tac75he.sh
 - tools/iot_driver
 - sources/iot_driver-0.1.0-modified-source.tar.zst
 - sources/TAC75HE-T75D-hook-source.tar.zst
@@ -15,7 +18,12 @@ licenses/iot_driver-GPL-3.0.txt
 
 GPL-2.0-only:
 - plugin/bin/linux/libOpenRGBTAC75HEPlugin.so
+- plugin/src/common/
+- plugin/src/linux/
+- plugin/src/windows/
 - sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst
+
+Vendored third-party files under plugin/src/ retain their own licenses.
 
 The full GPL-2.0 license text is available at:
 licenses/openrgb-plugin-GPL-2.0.txt

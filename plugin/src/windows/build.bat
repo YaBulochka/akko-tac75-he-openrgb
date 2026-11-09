@@ -25,7 +25,7 @@ if exist build rmdir /s /q build
 mkdir build
 cd build
 
-qmake ..\OpenRGBTAC75HEPlugin.pro CONFIG+=release
+qmake ..\OpenRGBTAC75HEPlugin.pro -spec win32-msvc CONFIG+=release
 if errorlevel 1 exit /b 1
 
 nmake

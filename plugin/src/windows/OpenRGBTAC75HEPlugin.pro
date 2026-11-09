@@ -21,25 +21,26 @@ INCLUDEPATH += \
     OpenRGB \
     OpenRGB/RGBController \
     OpenRGB/dependencies/json \
-    OpenRGB/dependencies/hidapi-win/include
+    OpenRGB/dependencies/hidapi-hotplug-win/include
 
 DEPENDPATH += ../common
 
 win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS WIN32
 
+    # OpenRGB ships hidapi-hotplug.dll next to OpenRGB.exe on Windows. Link
+    # against the same DLL instead of requiring a separate hidapi.dll.
     contains(QMAKE_TARGET.arch, x86_64) {
-        LIBS += -L$$PWD/OpenRGB/dependencies/hidapi-win/x64 -lhidapi
-        HIDAPI_DLL = $$PWD/OpenRGB/dependencies/hidapi-win/x64/hidapi.dll
+        LIBS += -L"$$PWD/OpenRGB/dependencies/hidapi-hotplug-win/x64" -lhidapi-hotplug
+        HIDAPI_DLL = $$PWD/OpenRGB/dependencies/hidapi-hotplug-win/x64/hidapi-hotplug.dll
     } else {
-        LIBS += -L$$PWD/OpenRGB/dependencies/hidapi-win/x86 -lhidapi
-        HIDAPI_DLL = $$PWD/OpenRGB/dependencies/hidapi-win/x86/hidapi.dll
+        LIBS += -L"$$PWD/OpenRGB/dependencies/hidapi-hotplug-win/x86" -lhidapi-hotplug
+        HIDAPI_DLL = $$PWD/OpenRGB/dependencies/hidapi-hotplug-win/x86/hidapi-hotplug.dll
     }
 
-    LIBS += -lws2_32 -lole32 -ldelayimp
-    QMAKE_LFLAGS += /DELAYLOAD:hidapi.dll
+    LIBS += -lws2_32 -lole32
 
     DESTDIR = $$PWD/../../bin/windows
 
-    QMAKE_POST_LINK += $$quote(cmd /c copy /Y $$shell_path($$HIDAPI_DLL) $$shell_path($$DESTDIR) $$escape_expand(\n\t))
+    QMAKE_POST_LINK += cmd /c copy /Y \"$$shell_path($$HIDAPI_DLL)\" \"$$shell_path($$DESTDIR)\" $$escape_expand(\n\t)
 }

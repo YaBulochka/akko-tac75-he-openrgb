@@ -7,6 +7,9 @@ on:
       - 'plugin/**'
       - '.github/workflows/build-windows-plugin.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: windows-latest
@@ -28,6 +31,14 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+
+      - name: Check version consistency
+        shell: bash
+        run: |
+          version="$(python -c 'import json; print(json.load(open("plugin/src/common/OpenRGBTAC75HEPlugin.json"))["Version"])')"
+          grep -Eq "info\\.Version[[:space:]]*=[[:space:]]*\"$version\"" plugin/src/common/OpenRGBTAC75HEPlugin.cpp
+          grep -q "\"Version\": \"$version\"" plugin/src/windows/OpenRGBTAC75HEPlugin.json
+          grep -q "\"VersionStr\": \"$version\"" plugin/src/windows/OpenRGBTAC75HEPlugin.json
 
       - name: Clone OpenRGB release_1.1
         shell: bash
@@ -57,22 +68,40 @@ jobs:
         shell: cmd
         run: |
           mkdir dist
-          for /r plugin %%f in (OpenRGBTAC75HEPlugin.dll) do copy /Y "%%f" dist\
-          for /r plugin\src\windows\OpenRGB\dependencies\hidapi-win %%f in (hidapi.dll) do copy /Y "%%f" dist\
+          copy /Y plugin\bin\windows\OpenRGBTAC75HEPlugin.dll dist\
+          copy /Y plugin\src\windows\OpenRGB\dependencies\hidapi-hotplug-win\x64\hidapi-hotplug.dll dist\
           dir dist
+          if not exist dist\hidapi-hotplug.dll (
+            echo [FAIL] hidapi-hotplug.dll is missing from dist
+            exit /b 1
+          )
           echo.
           echo === HEADERS ===
           dumpbin /headers dist\OpenRGBTAC75HEPlugin.dll | findstr /I "machine"
+          dumpbin /headers dist\OpenRGBTAC75HEPlugin.dll | findstr /C:"machine (x64)" >nul
+          if errorlevel 1 (
+            echo [FAIL] DLL is not x64
+            exit /b 1
+          )
+          echo.
+          echo === METADATA ===
+          findstr /I /C:"OpenRGBPluginAPIVersion" /C:"org.openrgb.tac75heplugin" dist\OpenRGBTAC75HEPlugin.dll >nul
+          if errorlevel 1 (
+            echo [FAIL] plugin metadata not found
+            exit /b 1
+          )
           echo.
           echo === DEPENDENTS ===
           dumpbin /dependents dist\OpenRGBTAC75HEPlugin.dll
-          echo.
-          echo === DELAYLOAD ===
-          dumpbin /delayload dist\OpenRGBTAC75HEPlugin.dll
+          dumpbin /dependents dist\OpenRGBTAC75HEPlugin.dll | findstr /I "hidapi-hotplug.dll" >nul
+          if errorlevel 1 (
+            echo [FAIL] plugin is not linked against hidapi-hotplug.dll
+            exit /b 1
+          )
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenRGBTAC75HEPlugin-windows
+          name: OpenRGBTAC75HEPlugin-windows-x86_64-qt6.8.3
           path: dist/
           if-no-files-found: error

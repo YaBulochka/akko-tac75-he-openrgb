@@ -15,9 +15,17 @@ mkdir -p \
     "$DEST/plugin/src/common" \
     "$DEST/plugin/src/linux/OpenRGB/RGBController" \
     "$DEST/plugin/src/linux/OpenRGB/dependencies/json/nlohmann" \
+    "$DEST/plugin/src/windows" \
     "$DEST/licenses"
 
 cp "$ROOT/plugin/src/common/"* "$DEST/plugin/src/common/"
+
+cp \
+    "$ROOT/plugin/src/windows/OpenRGBTAC75HEPlugin.pro" \
+    "$ROOT/plugin/src/windows/OpenRGBTAC75HEPlugin.json" \
+    "$ROOT/plugin/src/windows/build.bat" \
+    "$ROOT/plugin/src/windows/setup-openrgb.bat" \
+    "$DEST/plugin/src/windows/"
 
 cp \
     "$ROOT/plugin/src/linux/OpenRGBTAC75HEPlugin.pro" \

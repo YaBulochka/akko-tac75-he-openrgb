@@ -1,11 +1,17 @@
-# Locally generated firmware images
+# Locally generated firmware images and hook build output
 TAC75_HE_2782_v502_T75D_SAFE_GATE.bin
 TAC75_HE_2782_v502_stock.bin
+firmware_stock.bin
+patcher/build/
+patcher/hook.elf
+patcher/hook.map
+patcher/hooks_gen.S
 
 # Plugin build output
 plugin/src/linux/build/
 plugin/src/windows/build/
 plugin/src/windows/OpenRGB/
+plugin/bin/windows/*.dll
 
 # Python cache
 __pycache__/

@@ -2,26 +2,20 @@
 
 Unofficial and experimental OpenRGB Direct Mode support for the **Akko TAC75 HE**.
 
-This release contains:
+This repository contains:
 
-- a POSIX shell script that downloads the official stock firmware and applies the T75D patch locally;
-- a Linux OpenRGB plugin;
-- a reverse-engineered firmware download and flashing utility;
-- the corresponding modified source archives and license texts.
+- a local firmware builder that downloads the official stock firmware, verifies it and applies the T75D patch;
+- a Linux OpenRGB plugin and a Windows build workflow;
+- a firmware utility and a safety wrapper for flashing;
+- source archives and license texts.
 
-The release does **not** distribute the original Akko firmware or a prepatched full firmware image.
-
-The firmware build script downloads the exact official firmware from the vendor firmware API, verifies its SHA256 checksum, applies the custom T75D Direct Mode patch locally, and verifies the resulting image.
+It does **not** distribute the original Akko firmware or a prepatched firmware image.
 
 > [!CAUTION]
-> This is unofficial reverse-engineered software.
->
-> Flashing firmware always carries a risk of making the device unusable.
-> Do not use these files on any keyboard other than the exact supported model and firmware revision listed below.
+> This is unofficial reverse-engineered software. Flashing firmware can make the
+> keyboard unusable. Use it only with the exact model and firmware revision below.
 
 ## Supported device
-
-This release supports only:
 
 | Property | Required value |
 |---|---|
@@ -29,155 +23,99 @@ This release supports only:
 | USB VID:PID | `3151:502D` |
 | Device/API ID | `2782` |
 | Original firmware | `5.02` |
-| Platform | Linux x86_64 |
+| Platform | Linux x86_64, glibc 2.39 or newer |
+| Prebuilt plugin | OpenRGB 1.1, Qt 6.12 |
 
-Do not flash the generated firmware on another Akko or MonsGeek keyboard, even if it looks identical.
-
-### Windows
-
-Windows support is experimental and untested. This repository does not ship a
-prebuilt Windows DLL. The `Build Windows Plugin` GitHub Actions workflow can
-produce an x86_64 DLL from the current source, but the firmware build and
-flashing steps in this README are Linux-only.
+Do not flash the generated image on another Akko or MonsGeek keyboard, even if it
+looks identical.
 
 ## Requirements
 
-The prebuilt release requires:
+- Linux x86_64 with glibc 2.39 or newer.
+- An internet connection while building the firmware.
+- A POSIX-compatible `/bin/sh`, Python 3.9 or newer, `sha256sum`, `awk`,
+  `mktemp` and `lsusb`.
+- Runtime libraries for `iot_driver`: `libudev.so.1`, `libssl.so.3` and
+  `libasound.so.2`.
+- OpenRGB 1.1 built with Qt 6.12 for the prebuilt plugin, or a locally rebuilt
+  plugin.
+- Administrator access once, to install the udev rule.
 
-- Linux x86_64;
-- an internet connection while building the firmware;
-- a POSIX-compatible `/bin/sh`;
-- Python 3.9 or newer;
-- standard Linux tools including `sha256sum`, `awk` and `mktemp`;
-- OpenRGB for using the included plugin.
-- administrator access once, to install the included udev rules.
+The prebuilt `iot_driver` is built on a recent Arch Linux system. On an older
+distribution, rebuild it from `sources/iot_driver-0.1.0-modified-source.tar.zst`.
 
-Rust, an ARM compiler and the complete development repository are not required.
+The bundled `iot_driver` is a shared utility. Its help text still mentions
+MonsGeek. TAC75 HE support is provided by this release.
 
 ## Known limitations
 
 - OpenRGB must be completely closed before using the Akko Web Driver.
-- Do not use OpenRGB and the Akko Web Driver at the same time.
-- The Caps Lock LED indicator does not work while OpenRGB Direct Mode is active.
+- Do not run OpenRGB and the Akko Web Driver at the same time.
+- The Caps Lock LED indicator does not work while Direct Mode is active.
 - If OpenRGB is killed while Direct Mode is active, the keyboard may stay in
   Direct Mode until it is disconnected and reconnected.
-- The prebuilt plugin is built for OpenRGB 1.1 on Arch Linux with Qt 6.12
-  (x86_64). A plugin built against a different Qt major version will not load.
-- Only device ID `2782` with original firmware version `5.02` is supported.
-
-Hall Effect settings are stored onboard and do not depend on OpenRGB. The normal
-flashing process is expected to preserve them; see **Before installation**.
+- The plugin probes the keyboard only when it is loaded. If you connect the
+  keyboard after OpenRGB starts, restart OpenRGB or disable and re-enable the
+  plugin.
+- Only device ID `2782` with original firmware `5.02` is supported.
+- The Windows plugin has not been tested on Windows.
 
 ## Before installation
 
-> [!IMPORTANT]
-> The normal flashing process is designed to preserve the keyboard's onboard
-> configuration.
->
-> The generated firmware image does not overwrite the persistent flash area used
-> by the stock firmware for stored device data. Existing key mappings, Hall
-> Effect actuation settings, Rapid Trigger settings, deadzones and calibration
-> are therefore expected to remain unchanged.
->
-> This has only been tested on the supported TAC75 HE hardware and firmware
-> revision. Before flashing, record or take screenshots of any important custom
-> settings. After flashing, verify the key layout and Hall Effect behavior before
-> normal use. Recalibrate the keyboard in the Akko Web Driver if any key behaves
-> unexpectedly.
+The patch only writes the application area and is designed to preserve the
+persistent flash area used for key mappings, Hall Effect settings, Rapid Trigger,
+deadzones and calibration.
+
+This has only been tested on the supported hardware and firmware. Before
+flashing, record or take screenshots of important settings. After flashing,
+verify the key layout and Hall Effect behavior. Recalibrate in the Akko Web
+Driver if a key behaves unexpectedly.
 
 ## Installation
 
-> [!IMPORTANT]
-> Install the included udev rules before flashing the keyboard.
->
-> The TAC75 HE normally appears as USB device `3151:502D`. During firmware
-> flashing it disconnects and reconnects as the Rongyuan bootloader device
-> `3151:502A`.
->
-> Without permission rules for both modes, the flashing utility may lose access
-> to the keyboard after it enters the bootloader.
-
 ### 1. Verify the release files
-
-Before running or installing anything, verify the release contents:
 
 ```bash
 sha256sum -c SHA256SUMS
 ```
 
-Do not continue if any file fails verification.
-
-The generated firmware is not included in `SHA256SUMS` because it is built
-locally. The build script verifies both the downloaded stock firmware and the
-generated patched image separately.
+Do not continue if any file fails verification. The generated firmware is not in
+`SHA256SUMS` because it is built locally and verified by the build script.
 
 ### 2. Install the udev rules
-
-Install the included rule:
 
 ```bash
 sudo install -Dm644 \
   udev/70-akko-tac75-he.rules \
   /etc/udev/rules.d/70-akko-tac75-he.rules
-```
-
-Reload the udev configuration:
-
-```bash
 sudo udevadm control --reload-rules
 ```
 
-Disconnect and reconnect the keyboard after installing the rule.
-
-The rule grants the active local desktop user access only to:
-
-- TAC75 HE normal mode: `3151:502D`;
-- Rongyuan keyboard bootloader mode: `3151:502A`.
-
-It does not grant access to every device using vendor ID `3151`.
+Disconnect and reconnect the keyboard after installing the rule. The rule grants
+the active local user access to `3151:502D` and the bootloader `3151:502A` only.
 
 ### 3. Verify the keyboard
-
-Check that the keyboard is connected using the supported USB VID:PID:
 
 ```bash
 lsusb -d 3151:502d
 ```
 
-Expected device:
-
-```text
-3151:502D
-```
-
-Do not continue if the keyboard is not detected with this exact VID:PID.
+Expected output contains `3151:502D`. Do not continue if the keyboard is not
+detected with this exact VID:PID.
 
 ### 4. Build the patched firmware locally
 
-Make the included scripts executable:
-
 ```bash
-chmod +x build-firmware.sh tools/iot_driver
-```
-
-Build the firmware:
-
-```bash
+chmod +x build-firmware.sh tools/flash-tac75he.sh tools/iot_driver
 ./build-firmware.sh
 ```
 
-The script:
+The script downloads the official firmware for device ID `2782`, verifies the
+stock SHA256 `2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306`,
+applies the T75D SAFE-GATE patch and verifies the output SHA256
+`757c154ce58e656f68aca476daf68e76d1a7c4a40cc1d452b0b484ec4718e256`.
 
-1. Downloads the official firmware for device ID `2782`.
-2. Decompresses the vendor firmware package.
-3. Verifies the exact stock firmware SHA256:
-   `2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306`
-4. Applies the T75D SAFE-GATE patch locally.
-5. Verifies all patch locations, hook contents, image size and storage boundaries.
-6. Verifies the generated firmware SHA256:
-   `757c154ce58e656f68aca476daf68e76d1a7c4a40cc1d452b0b484ec4718e256`
-
-The default output file is created in the current directory:
+The default output is created in the current directory:
 
 ```text
 TAC75_HE_2782_v502_T75D_SAFE_GATE.bin
@@ -189,54 +127,39 @@ A custom output path may be supplied as the first argument:
 ./build-firmware.sh /path/to/TAC75_HE_2782_v502_T75D_SAFE_GATE.bin
 ```
 
-> [!NOTE]
-> `build-firmware.sh` only downloads and builds files.
-> It does not communicate with the keyboard and does not flash anything.
-
-If the vendor API returns an unexpected firmware image, or any expected byte,
-size or checksum differs, the build stops with an error.
+`build-firmware.sh` only builds the image. It does not communicate with the
+keyboard and does not flash anything.
 
 ### 5. Close conflicting software
-
-Completely close OpenRGB before flashing:
 
 ```bash
 pkill -x openrgb 2>/dev/null || true
 ```
 
-Also close the Akko Web Driver.
-
-OpenRGB and the Web Driver must not access the keyboard while firmware flashing
-is in progress.
+Also close the Akko Web Driver. OpenRGB and the Web Driver must not access the
+keyboard while flashing.
 
 ### 6. Flash the generated firmware
 
-Flash only the locally generated and successfully verified image:
-
 ```bash
-./tools/iot_driver firmware flash \
+./tools/flash-tac75he.sh \
   TAC75_HE_2782_v502_T75D_SAFE_GATE.bin
 ```
 
-Read the information printed by the utility.
-
-When prompted, type:
-
-```text
-yes
-```
+The wrapper verifies the image SHA256, the USB VID:PID, device ID `2782` and
+firmware version `5.02` before flashing. It asks for confirmation; type `yes`.
 
 Do not disconnect the keyboard, close the terminal or power off the computer
-while flashing is in progress.
+while flashing. The keyboard reconnects as bootloader `3151:502A`; the udev rule
+grants access to that mode. Reconnect the keyboard after flashing finishes.
 
-During flashing, the keyboard will reconnect as bootloader device `3151:502A`.
-The included udev rule grants access to this mode.
+> [!NOTE]
+> The wrapper refuses to run when the keyboard is already in bootloader mode.
+> Reconnect it in normal mode first. In bootloader mode the model cannot be
+> verified, so recovery requires the raw `iot_driver firmware flash <file>`
+> command and extra care.
 
-After flashing finishes, disconnect and reconnect the keyboard.
-
-### 7. Install the OpenRGB plugin
-
-Install the plugin into the user OpenRGB plugin directory:
+### 7. Install the Linux plugin
 
 ```bash
 install -Dm755 \
@@ -244,19 +167,31 @@ install -Dm755 \
   ~/.config/OpenRGB/plugins/libOpenRGBTAC75HEPlugin.so
 ```
 
-Start OpenRGB normally.
+Start OpenRGB. The Akko TAC75 HE should appear as an RGB device.
 
-The Akko TAC75 HE should appear as an RGB device.
+## Windows plugin
 
-## Building the plugin from source
+The Windows plugin has **not been tested on Windows**, and this repository does
+not include a prebuilt Windows DLL. The `Build Windows Plugin` GitHub Actions
+workflow builds an x86_64 DLL with Qt 6.8.3, MSVC 2022 and `hidapi-hotplug.dll`,
+matching the official OpenRGB 1.1 Windows build. The artifact contains
+`OpenRGBTAC75HEPlugin.dll` and `hidapi-hotplug.dll`.
 
-The included binary is built for OpenRGB 1.1 on Arch Linux with Qt 6.12
-(x86_64). OpenRGB loads plugins only when the Qt major version matches, so
-rebuild the plugin if your OpenRGB uses a different Qt version.
+To install the artifact:
+
+1. Copy `OpenRGBTAC75HEPlugin.dll` to `%APPDATA%\OpenRGB\plugins\`.
+2. Make sure `hidapi-hotplug.dll` is next to `OpenRGB.exe`. OpenRGB 1.1 already
+   ships it; if it is missing, copy the DLL from the artifact into the OpenRGB
+   program directory.
+3. Start OpenRGB.
+
+The firmware build and flashing steps in this README are Linux-only.
+
+## Building the Linux plugin from source
 
 Requirements:
 
-- `qmake6` (Qt 6 Core, Gui and Widgets development packages);
+- `qmake6` with Qt 6 Core, Gui and Widgets development packages;
 - `hidapi` with the `hidapi-hidraw` pkg-config module;
 - `g++`, `make` and `pkg-config`.
 
@@ -267,9 +202,9 @@ cd plugin/src/linux
 ./build.sh
 ```
 
-The script writes the result to
-`plugin/bin/linux/libOpenRGBTAC75HEPlugin.so` and prefers the Qt major version
-used by the `openrgb` binary in `PATH`.
+The result is written to `plugin/bin/linux/libOpenRGBTAC75HEPlugin.so`. The
+script prefers the Qt major version used by `openrgb` in `PATH`. The prebuilt
+plugin requires Qt 6.12; rebuild it for a different Qt version.
 
 The vendored OpenRGB plugin headers can be refreshed from an upstream tag:
 
@@ -278,34 +213,36 @@ cd plugin/src/linux
 ./setup-openrgb.sh release_1.1
 ```
 
-This is only needed when moving to a new OpenRGB plugin API.
-
 ## Normal usage
 
-OpenRGB can control the keyboard lighting after the patched firmware and plugin are installed.
+OpenRGB can control the keyboard lighting after the patched firmware and plugin
+are installed.
 
-To change actuation, Rapid Trigger, deadzones, key mappings or other keyboard settings:
+To change actuation, Rapid Trigger, deadzones, key mappings or other settings:
 
 1. Close OpenRGB completely.
 2. Disconnect and reconnect the keyboard if necessary.
 3. Open the Akko Web Driver.
-4. Read or change the keyboard settings.
+4. Read or change the settings.
 5. Close the Akko Web Driver.
 6. Start OpenRGB again.
 
-OpenRGB and the Akko Web Driver access the same vendor HID interface. Running both at the same time may cause communication failures or freeze the Web Driver session.
+OpenRGB and the Akko Web Driver access the same vendor HID interface. Running
+both at the same time may cause communication failures or freeze the Web Driver
+session.
 
-## Uninstalling the OpenRGB plugin
+## Uninstalling the plugin
 
 ```bash
 rm -f ~/.config/OpenRGB/plugins/libOpenRGBTAC75HEPlugin.so
 ```
 
-Removing the plugin disables OpenRGB integration but does not restore the original keyboard firmware.
+Removing the plugin disables OpenRGB integration but does not restore the
+original keyboard firmware.
 
 ## Restoring stock firmware
 
-The included `iot_driver` can download the current firmware returned by the vendor API for device ID `2782`:
+Download the current vendor firmware for device ID `2782`:
 
 ```bash
 ./tools/iot_driver firmware download \
@@ -313,119 +250,54 @@ The included `iot_driver` can download the current firmware returned by the vend
   --output TAC75_HE_2782_v502_stock.bin
 ```
 
-Before flashing it, verify that it is the exact known stock firmware used by this release:
+Flash it through the safety wrapper with `--stock`:
 
 ```bash
-sha256sum TAC75_HE_2782_v502_stock.bin
-```
-
-The required result is:
-
-```text
-2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306
-```
-
-Do not flash the downloaded image if its size or checksum differs.
-
-To restore the verified stock image:
-
-```bash
-./tools/iot_driver firmware flash \
+./tools/flash-tac75he.sh --stock \
   TAC75_HE_2782_v502_stock.bin
 ```
 
-Read the information printed by the utility and type `yes` manually when prompted.
+The wrapper verifies the known stock SHA256
+`2e188151b6025aac685855c6088959fa3d9c9058d9055bfb07a92c380b68f306`, the USB
+VID:PID, device ID `2782` and firmware `5.02` before flashing.
 
-Never use firmware intended for another keyboard model, device ID or hardware revision.
+Never use firmware intended for another keyboard model, device ID or hardware
+revision.
 
 ## Firmware protocol
 
-The patched firmware adds a custom Direct Mode protocol identified by the payload signature:
+The patched firmware adds a Direct Mode protocol with the payload signature
+`T75D`. Only signed T75D vendor packets are intercepted; unsigned stock commands
+are passed to the original firmware, so the Akko Web Driver still works while
+OpenRGB is closed. While Direct Mode is active, the stock lighting renderer
+cannot overwrite OpenRGB frames. Leaving Direct Mode restores stock lighting.
 
-```text
-T75D
-```
+## Licenses
 
-Only signed T75D vendor packets are intercepted by the custom handler.
+- GPL-3.0-only: `build-firmware.sh`, `patcher/`, `scripts/`, `tests/`, `udev/`
+  and `tools/`.
+- GPL-2.0-only: `plugin/` and the prebuilt Linux plugin binary.
+- Full license texts: `licenses/`.
+- Component-by-component notice: root `LICENSE`.
 
-Unsigned original vendor commands are passed to the stock firmware, allowing the Akko Web Driver to remain functional while OpenRGB is closed.
-
-While Direct Mode is active, the patched firmware prevents the stock lighting renderer from overwriting RGB frames sent by OpenRGB.
-
-Leaving Direct Mode restores normal stock lighting behavior.
-
-## Source code and licenses
-
-This repository contains components distributed under different free software licenses. The repository root `LICENSE` file provides a component-by-component licensing notice.
-
-The following components are distributed under **GPL-3.0-only**:
-
-- `build-firmware.sh`;
-- `patcher/`;
-- `udev/`;
-- `tools/iot_driver`;
-- `sources/iot_driver-0.1.0-modified-source.tar.zst`;
-- `sources/TAC75HE-T75D-hook-source.tar.zst`.
-
-The complete GPL-3.0 license text is included at:
-
-```text
-licenses/iot_driver-GPL-3.0.txt
-```
-
-The modified `iot_driver` source archive corresponds to the prebuilt binary distributed as:
-
-```text
-tools/iot_driver
-```
-
-The T75D hook source archive contains the assembly sources, linker script, generated hook declarations, patch builder and verification code used to produce:
-
-```text
-patcher/hook.bin
-```
-
-The following components are distributed under **GPL-2.0-only**:
-
-- `plugin/bin/linux/libOpenRGBTAC75HEPlugin.so`;
-- `sources/OpenRGB-TAC75HE-Plugin-modified-source.tar.zst`.
-
-The complete GPL-2.0 license text is included at:
-
-```text
-licenses/openrgb-plugin-GPL-2.0.txt
-```
-
-The OpenRGB plugin source archive corresponds to the prebuilt plugin included in this release.
-
-Release maintainers can rebuild the plugin source archive and the checksum list with:
-
-```bash
-./scripts/build-plugin-source-archive.sh
-./scripts/update-checksums.sh
-```
-
-The original Akko/Rongyuan firmware is not included in this repository or in the release archives. It is downloaded directly from the vendor firmware service by the user and is not covered by the licenses applied to this project's original code.
-
-Third-party components and dependencies retain their respective licenses.
+Vendored third-party files under `plugin/src/` retain their own licenses. The
+original Akko/Rongyuan firmware is not included; it is downloaded by the user.
 
 ## Project status
 
-This release should be considered an experimental alpha.
+This is an experimental alpha. It has been tested on one keyboard:
 
-It has been tested on one keyboard with:
-
-- Akko TAC75 HE;
-- USB VID:PID `3151:502D`;
-- device ID `2782`;
-- original firmware version `5.02`;
+- Akko TAC75 HE, USB `3151:502D`, device ID `2782`, firmware `5.02`;
 - Linux x86_64;
-- the included OpenRGB plugin.
+- the included Linux OpenRGB plugin.
 
-No guarantees are made for other hardware revisions, firmware versions, operating systems or OpenRGB builds.
+The Windows plugin is built by CI but has not been tested on Windows. No
+guarantees are made for other hardware revisions, firmware versions, operating
+systems or OpenRGB builds.
 
 ## Disclaimer
 
-This project is not affiliated with or endorsed by Akko, MonsGeek, Rongyuan or OpenRGB.
-
-The patcher, OpenRGB plugin and firmware utility are provided without warranty. You are responsible for verifying device compatibility and accepting all risks associated with firmware modification.
+This project is not affiliated with or endorsed by Akko, MonsGeek, Rongyuan or
+OpenRGB. The patcher, plugin and firmware utility are provided without warranty.
+You are responsible for verifying device compatibility and accepting all risks
+associated with firmware modification.

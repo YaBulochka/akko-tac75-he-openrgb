@@ -4,22 +4,31 @@ on:
   push:
     paths:
       - 'plugin/**'
+      - 'patcher/**'
       - 'sources/**'
       - 'SHA256SUMS'
       - 'README.md'
       - 'LICENSE'
+      - '.gitattributes'
       - '.gitignore'
+      - 'tests/**'
       - '.github/workflows/build-linux-plugin.yml'
   pull_request:
     paths:
       - 'plugin/**'
+      - 'patcher/**'
       - 'sources/**'
       - 'SHA256SUMS'
       - 'README.md'
       - 'LICENSE'
+      - '.gitattributes'
       - '.gitignore'
+      - 'tests/**'
       - '.github/workflows/build-linux-plugin.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -38,6 +47,9 @@ jobs:
             qt6-base-dev \
             libhidapi-dev
 
+      - name: Run patcher unit tests
+        run: python3 -m unittest discover -s tests -v
+
       - name: Check version consistency
         run: |
           version="$(python3 -c 'import json; print(json.load(open("plugin/src/common/OpenRGBTAC75HEPlugin.json"))["Version"])')"
@@ -55,12 +67,19 @@ jobs:
 
       - name: Verify plugin metadata
         run: |
+          version="$(python3 -c 'import json; print(json.load(open("plugin/src/common/OpenRGBTAC75HEPlugin.json"))["Version"])')"
           strings plugin/bin/linux/libOpenRGBTAC75HEPlugin.so | grep -q 'OpenRGBPluginAPIVersion'
-          strings plugin/bin/linux/libOpenRGBTAC75HEPlugin.so | grep -q '1.1.1'
+          strings plugin/bin/linux/libOpenRGBTAC75HEPlugin.so | grep -qF "$version"
+
+      - name: Record Qt version
+        id: qt
+        run: |
+          export PATH="/usr/lib/qt6/bin:$PATH"
+          echo "version=$(qmake6 -query QT_VERSION)" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: libOpenRGBTAC75HEPlugin-linux-x86_64
+          name: libOpenRGBTAC75HEPlugin-linux-x86_64-qt${{ steps.qt.outputs.version }}
           path: plugin/bin/linux/libOpenRGBTAC75HEPlugin.so
           if-no-files-found: error
